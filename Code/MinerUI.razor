@@ -56,7 +56,6 @@
 
     protected override void OnUpdate()
     {
-        // Re-render UI frame by frame so the money counts up smoothly
         StateHasChanged();
     }
 
@@ -74,27 +73,36 @@
         }
     }
 
-    public void OnWithdrawClicked()
-    {
-        Shelf.WithdrawMoney();
-    }
-
-    public void OnUpgradeClicked()
-    {
-        Shelf.BuyMinerUpgrade();
-    }
-
-    public void SetNewLock()
-    {
-        // In a full implementation you would show a popup to enter the new pin here.
-        // For now we'll hardcode "1234" to demonstrate the RPC call.
-        Shelf.ToggleLock("1234");
-        IsUnlockedLocally = true;
-    }
-    
-    public void RemoveLock()
-    {
-        Shelf.ToggleLock("");
-        IsUnlockedLocally = false;
-    }
+    public void OnWithdrawClicked() => Shelf.WithdrawMoney();
+    public void OnUpgradeClicked() => Shelf.BuyMinerUpgrade();
+    public void SetNewLock() => Shelf.ToggleLock("1234");
+    public void RemoveLock() => Shelf.ToggleLock("");
 }
+
+<style>
+    .screen-container {
+        width: 600px;
+        height: 400px;
+        background-color: #0d0d0d;
+        border: 4px solid #333;
+        color: #00ff41; /* Classic Matrix/Terminal Green */
+        font-family: 'Courier New', Courier, monospace;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    button {
+        background-color: #1a1a1a;
+        color: #00ff41;
+        border: 1px solid #00ff41;
+        padding: 10px;
+        margin-top: 10px;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background-color: #00ff41;
+        color: black;
+    }
+</style>
