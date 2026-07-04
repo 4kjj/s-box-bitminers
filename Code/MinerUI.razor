@@ -1,0 +1,100 @@
+@using Sandbox;
+@using Sandbox.UI;
+@inherits PanelComponent
+@namespace DXRP.Miners
+
+<root>
+    @if ( Shelf == null ) return;
+
+    <div class="screen-container">
+        @if ( Shelf.IsLocked && !IsUnlockedLocally )
+        {
+            <div class="lock-screen">
+                <h2>ENTER PIN</h2>
+                <textentry @ref="PinEntry" onsubmit=@SubmitPin></textentry>
+                <div class="error-text">@ErrorMsg</div>
+            </div>
+        }
+        else
+        {
+            <div class="dashboard">
+                <div class="header">
+                    <h2>BitMiner Dashboard</h2>
+                    <div class="status">Power: @(Shelf.ConnectedBattery != null ? "ONLINE" : "NO POWER")</div>
+                </div>
+
+                <div class="stats">
+                    <div class="money-display">$@Shelf.MinedMoney.ToString("0.00")</div>
+                    <div class="hash-rate">Miners Installed: @Shelf.MinerCount</div>
+                </div>
+
+                <div class="controls">
+                    <button class="withdraw-btn" onclick=@OnWithdrawClicked>Withdraw</button>
+                    <button class="upgrade-btn" onclick=@OnUpgradeClicked>Buy Upgrade ($@DXRPCryptoConfig.UpgradeMinerCost)</button>
+                    
+                    @if( !Shelf.IsLocked )
+                    {
+                         <button class="lock-btn" onclick=@SetNewLock>Enable PIN Lock</button>
+                    }
+                    else
+                    {
+                         <button class="unlock-btn" onclick=@RemoveLock>Remove Lock</button>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</root>
+
+@code
+{
+    [Property] public MinerShelf Shelf { get; set; }
+    
+    public bool IsUnlockedLocally = false;
+    public string ErrorMsg = "";
+    private TextEntry PinEntry;
+
+    protected override void OnUpdate()
+    {
+        // Re-render UI frame by frame so the money counts up smoothly
+        StateHasChanged();
+    }
+
+    public void SubmitPin()
+    {
+        if (PinEntry.Text == Shelf.PinCode)
+        {
+            IsUnlockedLocally = true;
+            ErrorMsg = "";
+        }
+        else
+        {
+            ErrorMsg = "INCORRECT PIN";
+            PinEntry.Text = "";
+        }
+    }
+
+    public void OnWithdrawClicked()
+    {
+        Shelf.WithdrawMoney();
+    }
+
+    public void OnUpgradeClicked()
+    {
+        Shelf.BuyMinerUpgrade();
+    }
+
+    public void SetNewLock()
+    {
+        // In a full implementation you would show a popup to enter the new pin here.
+        // For now we'll hardcode "1234" to demonstrate the RPC call.
+        Shelf.ToggleLock("1234");
+        IsUnlockedLocally = true;
+    }
+    
+    public void RemoveLock()
+    {
+        Shelf.ToggleLock("");
+        IsUnlockedLocally = false;
+    }
+}
